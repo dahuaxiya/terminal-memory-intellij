@@ -1,0 +1,112 @@
+<idea-plugin>
+    <id>com.terminal.memory</id>
+    <name>Terminal Memory</name>
+    <version>0.1.0</version>
+    <vendor email="support@terminalmemory.dev" url="https://github.com/terminal-memory">Terminal Memory Team</vendor>
+
+    <description><![CDATA[
+        <p>Save and restore your IDE integrated terminals and AI coding agent sessions.</p>
+        
+        <p>Supported AI Agents:</p>
+        <ul>
+            <li>Kimi</li>
+            <li>Claude</li>
+            <li>Codex</li>
+        </ul>
+        
+        <p>Features:</p>
+        <ul>
+            <li>Automatically capture terminal state when closing IDE</li>
+            <li>Restore all terminals with one click</li>
+            <li>Resume AI agent sessions with resume tokens</li>
+            <li>Preserve working directories and environment variables</li>
+        </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <p>Version 0.1.0 - Initial Release</p>
+        <ul>
+            <li>Basic terminal session save/restore</li>
+            <li>Support for Kimi, Claude, and Codex</li>
+            <li>Tool window for viewing saved sessions</li>
+        </ul>
+    ]]></change-notes>
+
+    <idea-version since-build="232"/>
+
+    <!-- Product compatibility -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
+
+    <!-- Extensions -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Project service -->
+        <projectService 
+            serviceImplementation="com.terminalmemory.service.TerminalMemoryProjectService"/>
+        
+        <!-- Settings -->
+        <projectConfigurable 
+            parentId="tools"
+            instance="com.terminalmemory.ui.TerminalMemorySettingsConfigurable"
+            id="TerminalMemory.Settings"
+            displayName="Terminal Memory"/>
+        
+        <!-- Tool Window -->
+        <toolWindow 
+            id="Terminal Memory"
+            secondary="true"
+            anchor="right"
+            factoryClass="com.terminalmemory.ui.TerminalMemoryToolWindowFactory"
+            icon="/icons/terminal-memory.svg"/>
+        
+        <!-- Project listener -->
+        <projectManagerListener 
+            implementation="com.terminalmemory.service.TerminalMemoryProjectListener"/>
+    </extensions>
+
+    <!-- Actions -->
+    <actions>
+        <group id="TerminalMemory.Menu" text="Terminal Memory" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            
+            <action id="TerminalMemory.SaveSessions"
+                    class="com.terminalmemory.actions.SaveSessionsAction"
+                    text="Save Terminal Sessions"
+                    description="Save all terminal sessions"
+                    icon="/icons/save.svg">
+            </action>
+            
+            <action id="TerminalMemory.RestoreSessions"
+                    class="com.terminalmemory.actions.RestoreSessionsAction"
+                    text="Restore Terminal Sessions"
+                    description="Restore saved terminal sessions"
+                    icon="/icons/restore.svg">
+            </action>
+            
+            <action id="TerminalMemory.ShowStatus"
+                    class="com.terminalmemory.actions.ShowStatusAction"
+                    text="Show Status"
+                    description="Show saved terminal status"
+                    icon="/icons/info.svg">
+            </action>
+            
+            <separator/>
+            
+            <action id="TerminalMemory.ClearSavedState"
+                    class="com.terminalmemory.actions.ClearSavedStateAction"
+                    text="Clear Saved State"
+                    description="Clear all saved terminal states"
+                    icon="/icons/clear.svg">
+            </action>
+        </group>
+        
+        <!-- Toolbar actions -->
+        <action id="TerminalMemory.ToolbarSave"
+                class="com.terminalmemory.actions.SaveSessionsAction"
+                text="Save"
+                icon="/icons/save.svg">
+            <add-to-group group-id="MainToolbarRight" anchor="last"/>
+        </action>
+    </actions>
+
+</idea-plugin>
