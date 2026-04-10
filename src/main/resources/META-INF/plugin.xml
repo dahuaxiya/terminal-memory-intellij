@@ -57,7 +57,7 @@
             secondary="true"
             anchor="right"
             factoryClass="com.terminalmemory.ui.TerminalMemoryToolWindowFactory"
-            icon="/icons/terminal-memory.svg"/>
+            />
         
         <!-- Project listener -->
         <projectManagerListener 
@@ -73,21 +73,21 @@
                     class="com.terminalmemory.actions.SaveSessionsAction"
                     text="Save Terminal Sessions"
                     description="Save all terminal sessions"
-                    icon="/icons/save.svg">
+                    >
             </action>
             
             <action id="TerminalMemory.RestoreSessions"
                     class="com.terminalmemory.actions.RestoreSessionsAction"
                     text="Restore Terminal Sessions"
                     description="Restore saved terminal sessions"
-                    icon="/icons/restore.svg">
+                    >
             </action>
             
             <action id="TerminalMemory.ShowStatus"
                     class="com.terminalmemory.actions.ShowStatusAction"
                     text="Show Status"
                     description="Show saved terminal status"
-                    icon="/icons/info.svg">
+                    >
             </action>
             
             <separator/>
@@ -96,7 +96,7 @@
                     class="com.terminalmemory.actions.ClearSavedStateAction"
                     text="Clear Saved State"
                     description="Clear all saved terminal states"
-                    icon="/icons/clear.svg">
+                    >
             </action>
         </group>
         
