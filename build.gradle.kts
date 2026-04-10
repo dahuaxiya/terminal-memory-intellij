@@ -22,7 +22,7 @@ dependencies {
 }
 
 intellij {
-    version.set("2023.2.5")
+    version.set("2024.1.4")
     type.set("IC")
     plugins.set(listOf("terminal"))
     
@@ -40,7 +40,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("232")
-        untilBuild.set("241.*")
+        sinceBuild.set("241")
+        untilBuild.set("253.*")
     }
 }
