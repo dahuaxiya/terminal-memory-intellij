@@ -108,17 +108,59 @@ class TerminalMemoryProjectService(private val project: Project) {
     }
     
     /**
-     * Get all active terminals
+     * Get all active terminals using Java reflection for compatibility
      */
     private fun getActiveTerminals(): List<TerminalInfo> {
         val terminals = mutableListOf<TerminalInfo>()
         
         try {
-            val terminalManager = TerminalToolWindowManager.getInstance(project)
-            val widgets = terminalManager.terminalWidgets
+            val terminalView = TerminalView.getInstance(project)
+            
+            // Use Java reflection to access widgets
+            val widgets: List<*> = try {
+                // Try getTerminalWidgets() method
+                val method = terminalView.javaClass.getMethod("getTerminalWidgets")
+                method.invoke(terminalView) as? List<*>
+            } catch (e: Exception) {
+                try {
+                    // Try getWidgets() method
+                    val method = terminalView.javaClass.getMethod("getWidgets")
+                    method.invoke(terminalView) as? List<*>
+                } catch (e2: Exception) {
+                    try {
+                        // Try terminalWidgets field
+                        val field = terminalView.javaClass.getDeclaredField("terminalWidgets")
+                        field.isAccessible = true
+                        field.get(terminalView) as? List<*>
+                    } catch (e3: Exception) {
+                        try {
+                            // Try widgets field
+                            val field = terminalView.javaClass.getDeclaredField("widgets")
+                            field.isAccessible = true
+                            field.get(terminalView) as? List<*>
+                        } catch (e4: Exception) {
+                            LOG.warn("All reflection attempts failed")
+                            emptyList<Any>()
+                        }
+                    }
+                }
+            } ?: emptyList<Any>()
+            
+            LOG.info("Found ${widgets.size} terminals via reflection")
             
             for ((index, widget) in widgets.withIndex()) {
-                val title = widget.terminalTitle.toString()
+                val title = try {
+                    widget?.let { w ->
+                        try {
+                            val titleMethod = w.javaClass.getMethod("getTerminalTitle")
+                            titleMethod.invoke(w)?.toString()
+                        } catch (e: Exception) {
+                            "Terminal ${index + 1}"
+                        }
+                    } ?: "Terminal ${index + 1}"
+                } catch (e: Exception) {
+                    "Terminal ${index + 1}"
+                }
                 
                 terminals.add(TerminalInfo(
                     id = "terminal_$index",
@@ -126,10 +168,30 @@ class TerminalMemoryProjectService(private val project: Project) {
                     tty = "unknown"
                 ))
             }
+            
+            // Fallback: count content tabs in Terminal tool window
+            if (terminals.isEmpty()) {
+                val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Terminal")
+                val contentCount = toolWindow?.contentManager?.contentCount ?: 0
+                LOG.info("Terminal tool window has $contentCount tabs")
+                
+                if (contentCount > 0) {
+                    for (i in 0 until contentCount) {
+                        val content = toolWindow?.contentManager?.getContent(i)
+                        val title = content?.displayName ?: "Terminal ${i + 1}"
+                        terminals.add(TerminalInfo(
+                            id = "terminal_$i",
+                            title = title,
+                            tty = "unknown"
+                        ))
+                    }
+                }
+            }
         } catch (e: Exception) {
             LOG.error("Failed to get active terminals", e)
         }
         
+        LOG.info("Total terminals found: ${terminals.size}")
         return terminals
     }
     
