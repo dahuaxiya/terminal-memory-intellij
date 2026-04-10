@@ -115,7 +115,7 @@ class TerminalMemoryProjectService(private val project: Project) {
         
         try {
             val terminalView = TerminalView.getInstance(project)
-            val widgets = terminalView.terminalWidgets
+            val widgets = terminalView.widgets
             
             for ((index, widget) in widgets.withIndex()) {
                 val title = widget.terminalTitle
@@ -223,7 +223,7 @@ class TerminalMemoryProjectService(private val project: Project) {
             
             Messages.showInfoMessage(project, "Restored $restoredCount terminal(s).", "Terminal Memory")
             refreshToolWindow()
-            true
+            return true
         } catch (e: Exception) {
             LOG.error("Failed to restore terminals", e)
             Messages.showErrorDialog(project, "Failed to restore sessions: ${e.message}", "Terminal Memory")
