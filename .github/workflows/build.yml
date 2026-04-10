@@ -1,0 +1,83 @@
+name: Build Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
+    
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+    
+    - name: Build with Gradle
+      run: ./gradlew buildPlugin --no-daemon
+    
+    - name: Upload Plugin Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: terminal-memory-plugin
+        path: build/distributions/*.zip
+        retention-days: 30
+    
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v0.1.0
+        name: Terminal Memory v0.1.0
+        body: |
+          ## Terminal Memory v0.1.0
+          
+          ### Features
+          - Save and restore IDE integrated terminals
+          - Support Kimi, Claude, Codex AI agents
+          - Auto-save on project close
+          - Auto-restore on project open
+          - Tool window for viewing saved sessions
+          
+          ### Installation
+          1. Download the ZIP file below
+          2. IntelliJ IDEA → Settings → Plugins → Install Plugin from Disk
+          3. Select the downloaded ZIP file
+          4. Restart IDEA
+          
+          ### Configuration
+          Settings → Terminal Memory:
+          - Python Path: `/usr/bin/python3`
+          - Core Module Path: `/path/to/terminal-memory/core`
+          
+          **Note**: This plugin requires the Python core module to function.
+        files: build/distributions/*.zip
+        fail_on_unmatched_files: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
