@@ -103,8 +103,7 @@
         <!-- Toolbar actions -->
         <action id="TerminalMemory.ToolbarSave"
                 class="com.terminalmemory.actions.SaveSessionsAction"
-                text="Save"
-                icon="/icons/save.svg">
+                text="Save">
             <add-to-group group-id="MainToolbarRight" anchor="last"/>
         </action>
     </actions>
