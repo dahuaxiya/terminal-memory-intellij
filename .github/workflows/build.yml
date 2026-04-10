@@ -48,36 +48,3 @@ jobs:
         name: terminal-memory-plugin
         path: build/distributions/*.zip
         retention-days: 30
-    
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v0.1.0
-        name: Terminal Memory v0.1.0
-        body: |
-          ## Terminal Memory v0.1.0
-          
-          ### Features
-          - Save and restore IDE integrated terminals
-          - Support Kimi, Claude, Codex AI agents
-          - Auto-save on project close
-          - Auto-restore on project open
-          - Tool window for viewing saved sessions
-          
-          ### Installation
-          1. Download the ZIP file below
-          2. IntelliJ IDEA → Settings → Plugins → Install Plugin from Disk
-          3. Select the downloaded ZIP file
-          4. Restart IDEA
-          
-          ### Configuration
-          Settings → Terminal Memory:
-          - Python Path: `/usr/bin/python3`
-          - Core Module Path: `/path/to/terminal-memory/core`
-          
-          **Note**: This plugin requires the Python core module to function.
-        files: build/distributions/*.zip
-        fail_on_unmatched_files: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
