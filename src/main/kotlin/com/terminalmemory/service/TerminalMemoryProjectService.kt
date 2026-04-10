@@ -114,17 +114,16 @@ class TerminalMemoryProjectService(private val project: Project) {
         val terminals = mutableListOf<TerminalInfo>()
         
         try {
-            val terminalView = TerminalView.getInstance(project)
-            val widgets = terminalView.widgets
+            val terminalManager = TerminalToolWindowManager.getInstance(project)
+            val widgets = terminalManager.terminalWidgets
             
             for ((index, widget) in widgets.withIndex()) {
-                val title = widget.terminalTitle
-                val tty = widget.ttyConnectable?.tty?.name ?: "unknown"
+                val title = widget.terminalTitle.toString()
                 
                 terminals.add(TerminalInfo(
                     id = "terminal_$index",
                     title = title,
-                    tty = tty
+                    tty = "unknown"
                 ))
             }
         } catch (e: Exception) {
@@ -227,7 +226,7 @@ class TerminalMemoryProjectService(private val project: Project) {
         } catch (e: Exception) {
             LOG.error("Failed to restore terminals", e)
             Messages.showErrorDialog(project, "Failed to restore sessions: ${e.message}", "Terminal Memory")
-            false
+            return false
         }
     }
     
