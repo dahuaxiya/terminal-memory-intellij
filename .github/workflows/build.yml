@@ -5,7 +5,12 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
+
+# 添加权限配置
+permissions:
+  contents: write    # 允许创建 release
+  actions: read      # 允许读取 actions
 
 jobs:
   build:
@@ -36,7 +41,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     
-    - name: Make gradlew executable
+    - name: Make gradlw executable
       run: chmod +x ./gradlew
     
     - name: Build with Gradle
@@ -48,3 +53,22 @@ jobs:
         name: terminal-memory-plugin
         path: build/distributions/*.zip
         retention-days: 30
+    
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v0.1.0-${{ github.run_number }}
+        name: Terminal Memory v0.1.0 (Build ${{ github.run_number }})
+        body: |
+          ## Terminal Memory v0.1.0
+          
+          ### Installation
+          1. Download the ZIP file below
+          2. IntelliJ IDEA → Settings → Plugins → Install Plugin from Disk
+          3. Select the downloaded ZIP file
+          4. Restart IDEA
+        files: build/distributions/*.zip
+        fail_on_unmatched_files: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
